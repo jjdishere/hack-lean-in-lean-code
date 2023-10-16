@@ -1,6 +1,7 @@
 import Mathlib.Logic.Equiv.Defs
 
 import Mathlib.Algebra.Ring.Basic
+import Mathlib.RingTheory.Subring.Basic
 import Mathlib.Algebra.Module.Basic
 
 def id' {A : Type _} (x : A) : A := x
