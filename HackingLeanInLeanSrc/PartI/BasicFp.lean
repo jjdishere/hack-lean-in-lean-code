@@ -45,15 +45,26 @@ def append_length (xs ys : List A) : add (length xs) (length ys) = length (appen
   | _ :: xs => congr_arg ℕ.succ $ append_length xs ys
 
 def reverse : List A -> List A :=
-  sorry
+  fun xs =>
+  match xs with
+  | []      => []
+  | x :: xs => append (reverse xs) [x] 
 
 example : reverse [0, 1, 2, 3, 4, 5] = [5, 4, 3, 2, 1, 0] := by
-  sorry -- rfl
+  rfl
 
 -- Exercise: define reverse, and
 --           prove that the reverse of one list appended to another
 --           is the reverse of the second appended to the reverse
 --           of the first.
+@[simp]
+theorem Append_nil (x : List A) : append x [] = x := sorry
+
+example (x y : List A) : reverse ( append x y) = append (reverse x) (reverse y) := 
+  match x, y with
+  | [], _ => rfl
+  | a :: x , [] => sorry
+  | a :: x , b :: y => sorry
 
 -- Exercise: prove reverse is an involution
 
