@@ -58,15 +58,29 @@ example : reverse [0, 1, 2, 3, 4, 5] = [5, 4, 3, 2, 1, 0] := by
 --           is the reverse of the second appended to the reverse
 --           of the first.
 @[simp]
-theorem Append_nil (x : List A) : append x [] = x := sorry
+theorem append_nil {x : List A} : append x [] = x := 
+  match x with
+  | [] => rfl
+  | x :: _ => congr_arg (x :: ·) $ append_nil
 
-example (x y : List A) : reverse ( append x y) = append (reverse x) (reverse y) := 
+@[simp]
+theorem append_assoc {x y z : List A} : append (append x y) z = append x (append y z) := 
+  match x with
+  | [] => rfl
+  | _ :: _ => congr_arg _ append_assoc
+
+theorem rev_append {x y : List A} : reverse (append x y) = append (reverse y) (reverse x) := 
   match x, y with
-  | [], _ => rfl
-  | a :: x , [] => sorry
-  | a :: x , b :: y => sorry
+  | [], _ => append_nil.symm
+  | _ :: _ , [] => Eq.trans (congr_arg (append · _) (congr_arg _ append_nil)) rfl
+  | _ :: _ , _ :: _ => Eq.trans (congr_arg (append · _) (rev_append)) (append_assoc)
 
 -- Exercise: prove reverse is an involution
+
+theorem rev_rev {x : List A} : reverse (reverse x) = x := 
+  match x with 
+  | [] => rfl
+  | _ :: _ => Eq.trans rev_append $ congr_arg _ rev_rev
 
 @[simp] def foldl : (B -> A -> B) -> B -> List A -> B :=
   fun f acc xs =>
@@ -95,6 +109,10 @@ example : filter (· ≠ 0) [0, 1, 2, 0, 3, 4, 0, 0, 5, 6] = [1, 2, 3, 4, 5, 6] 
   rfl
 
 -- Exercise: define filter in terms of folds
+def filter' (f : A -> Bool) : List A -> List A := foldr (fun x xs => if (f x) then x :: xs else xs) []
+
+example : filter' (· ≠ 0) [0, 1, 2, 0, 3, 4, 0, 0, 5, 6] = [1, 2, 3, 4, 5, 6] :=
+  rfl
 
 def foldr_cons_nil (xs : List A) : foldr List.cons [] xs = xs :=
   match xs with
@@ -137,6 +155,7 @@ example : join [[0], [1, 2, 3, 4], [5, 6, 7]] = [0, 1, 2, 3, 4, 5, 6, 7] := by
 -- [ x | x <- [0, 1, 2, 3] | x != 2 ]
 -- Exercise: how can we translate the above
 -- HINT: [ c | p ] = if p then [c] else []
+#eval join $ map ((fun x => if x != 2 then [x] else []) : Int -> List Int)  [0, 1, 2, 3]
 
 --- `map`, `join` <-> `bind`
 -- bind xs k = join (map k xs)
