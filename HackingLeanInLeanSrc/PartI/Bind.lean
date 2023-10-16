@@ -40,4 +40,7 @@ example : List A -> List A -> Option (List A) :=
 #check Except
 
 instance {err : Type _} : Functor (Result err) where
-  map f xs := sorry
+  map f xs := 
+    match xs with
+    | .err e  => .err e
+    | .ok o => .ok $ f o
