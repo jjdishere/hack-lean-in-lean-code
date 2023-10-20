@@ -61,3 +61,29 @@ example {A B C : Type} (f : A -> B -> C) (x : A) (y : B) : C := by
      somehow
        anyhow rfl are we proving
    exact_anyhow y x x x x y
+
+syntax (name := try_exact) "try_exact" (ppSpace colGt term:max)* : tactic
+
+@[tactic try_exact]
+def evalTryExact : Tactic := fun stx =>
+  match stx with 
+  | `(tactic | try_exact $arr*) => 
+    for t in arr do
+      try
+      {
+        closeMainGoalUsing (checkUnassigned := false)
+        fun type => do
+          let mvarCounterSaved := (← getMCtx).mvarCounter
+          let r ← elabTermEnsuringType t type
+          logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
+          return r
+      }
+      catch 
+      | _ => continue
+    -- should throw some error here after `for`, non of input is correct
+    -- should have a info showing which one is correct
+    -- should have a option to enable/disable error info of all inputs
+  | _ => throwUnsupportedSyntax
+
+example (a b : Nat) : a * b = b * a := by
+  try_exact rfl (Nat.mul_comm _ _)
