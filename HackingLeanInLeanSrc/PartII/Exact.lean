@@ -87,3 +87,5 @@ def evalTryExact : Tactic := fun stx =>
 
 example (a b : Nat) : a * b = b * a := by
   try_exact rfl (Nat.mul_comm _ _)
+
+#check Lean.MVarId.assign
